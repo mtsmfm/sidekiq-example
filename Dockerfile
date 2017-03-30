@@ -1,18 +1,15 @@
 FROM ruby:2.4.1-alpine
 
-ARG LOCAL_BUILD=
-
-ENV BUNDLE_PATH=/app/vendor/bundle \
+ENV BUNDLE_PATH=/vendor/bundle \
   BUNDLE_JOBS=4
-
-RUN apk add --no-cache build-base mysql-dev
 
 WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
 
-RUN if [ -z "$LOCAL_BUILD" ]; then \
-  bundle install \
-;fi
+RUN apk add --no-cache --virtual .build-deps build-base \
+  && apk add --no-cache  --virtual .run-deps mysql-dev \
+  && bundle install \
+  && apk del .build-deps
 
 COPY . .

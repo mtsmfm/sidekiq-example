@@ -1,17 +1,13 @@
 version: '3.1'
 services:
   web: &web
-    build:
-      context: .
-      args:
-        - LOCAL_BUILD="true"
+    build: .
     command: bundle exec rackup -o 0.0.0.0
     environment:
       - REDIS_URL=redis://redis
       - DATABASE_URL=mysql2://user:password@mysql/database
     volumes:
       - ./:/app
-      - bundle:/app/vendor/bundle
     ports:
       - 9292:9292
     depends_on:
@@ -32,5 +28,3 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=database
-volumes:
-  bundle:
