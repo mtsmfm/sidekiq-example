@@ -1,4 +1,29 @@
-#! /usr/bin/env sh
+#! /usr/bin/env ruby
 
-set -ex
-bundle install
+system "bundle install"
+
+require "bundler"
+Bundler.require
+
+ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+begin
+  ActiveRecord::Base.connection.execute("SELECT 0")
+rescue => e
+  retry_count ||= 0
+  retry_count += 1
+
+  puts e
+
+  raise if retry_count > 5
+
+  sleep retry_count ** 2
+  retry
+end
+
+ActiveRecord::Schema.define do
+  create_table :messages, force: true do |t|
+    t.string :body
+  end
+end
